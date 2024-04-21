@@ -1,0 +1,14 @@
+<!DOCTYPE RCC>
+<RCC version="1.0">
+    <qresource prefix="icon">
+        <file>tdengine.png</file>
+        <file>tdengine_un.png</file>
+        <file>database.png</file>
+        <file>database_un.png</file>
+        <file>table.png</file>
+        <file>table_un.png</file>
+        <file>connection.png</file>
+        <file>query.png</file>
+        <file>connection.png</file>
+    </qresource>
+</RCC>
