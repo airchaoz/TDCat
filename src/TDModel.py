@@ -9,9 +9,10 @@ class TCConnectException(Exception):
 
 
 class TDConnect:
-    def __init__(self, url, user, password, timeout=30) -> None:
+    def __init__(self, url, port, user, password, timeout=30) -> None:
         self._comm: connect = None
         self.url = url
+        self.port = port
         self.user = user
         self.password = password
         self.timeout = timeout
@@ -21,7 +22,7 @@ class TDConnect:
     def connect_init(self) -> None:
         try:
             self._comm = connect(
-                url=self.url,
+                url=f"{self.url}:{self.port}",
                 user=self.user,
                 password=self.password,
                 timeout=int(self.timeout),
@@ -53,11 +54,15 @@ class TDConnect:
     def config_dump(self) -> str:
         config = {
             "url": self.url,
+            "port": self.port,
             "user": self.user,
             "password": self.password,
             "timeout": self.timeout,
         }
         return json.dumps(config)
+
+    def get_params(self):
+        return self.url, self.port, self.user, self.password
 
 
 class TDDBModel:

@@ -46,12 +46,6 @@ class CustomTableView(QTableView):
         self.model = CustomTableModel(data, header)
         self.setModel(self.model)
 
-        # 设置每一列自适应单元格宽度
-        for i in range(self.model.columnCount()):
-            self.horizontalHeader().setSectionResizeMode(
-                i, QHeaderView.ResizeToContents
-            )
-
     def clear(self):
         if self.model:
             self.model.removeRows(0, self.model.rowCount())

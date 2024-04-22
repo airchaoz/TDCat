@@ -7,8 +7,15 @@ class CustomTreeView(QTreeView):
         super(CustomTreeView, self).__init__(parent)
 
     def mouseDoubleClickEvent(self, event):
-        index = self.indexAt(event.pos())  # 获取双击位置的索引
+        index = self.indexAt(event.pos())
         if index.isValid():
-            item = self.model().itemFromIndex(index)  # 获取对应的 QStandardItem 对象
+            item = self.model().itemFromIndex(index)
             if item is not None:
                 item.mouseDoubleClickEvent()
+
+    def contextMenuEvent(self, event):
+        index = self.indexAt(event.pos())
+        if index.isValid():
+            item = self.model().itemFromIndex(index)
+            if item is not None:
+                item.contextMenuEvent(event, self)
