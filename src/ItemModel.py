@@ -21,6 +21,9 @@ class CustomItem(QStandardItem):
         else:
             self.parent.tree_viewer.expand(index)
 
+    def contextMenuEvent(self, event, host):
+        pass
+
 
 class TableItem(CustomItem):
     def __init__(self, text="", table: TDTableModel = None, parent=None):
@@ -123,7 +126,7 @@ class ConnItem(CustomItem):
 
         for k in sorted(self.conn.db_dict.keys()):
             v = self.conn.db_dict[k]
-            item = DBItem(k, v, self)
+            item = DBItem(k, v, self.parent)
             self.appendRow(item)
 
         self.init_flat = True
@@ -139,11 +142,8 @@ class ConnItem(CustomItem):
         menu.addAction(refresh_action)
         menu.addAction(del_action)
 
-        # 点击事件
-        # edit_action.triggered.connect(lambda: self.edit_connect())
-
+        edit_action.triggered.connect(lambda: self.parent.edit_connect(self.name))
         del_action.triggered.connect(lambda: self.parent.del_connect(self.name))
 
         # 显示上下文菜单
         menu.exec_(host.mapToGlobal(event.pos()))
-

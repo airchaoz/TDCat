@@ -1,6 +1,7 @@
 from taosrest import connect
 import json
-import numpy as np
+from TDCommon import PAGE_SIZE
+from math import ceil
 
 
 class TCConnectException(Exception):
@@ -9,8 +10,9 @@ class TCConnectException(Exception):
 
 
 class TDConnect:
-    def __init__(self, url, port, user, password, timeout=30) -> None:
+    def __init__(self, name, url, port, user, password, timeout=30) -> None:
         self._comm: connect = None
+        self.name = name
         self.url = url
         self.port = port
         self.user = user
@@ -53,6 +55,7 @@ class TDConnect:
 
     def config_dump(self) -> str:
         config = {
+            "name": self.name,
             "url": self.url,
             "port": self.port,
             "user": self.user,
@@ -62,7 +65,7 @@ class TDConnect:
         return json.dumps(config)
 
     def get_params(self):
-        return self.url, self.port, self.user, self.password
+        return self.url, self.port, self.user, self.password, self.name
 
 
 class TDDBModel:
@@ -104,17 +107,24 @@ class TDTableModel:
         self.table_name = table_name
         self._comm = comm
 
-    def query(self, page=0, page_size=100):
+    def query(self, page=0):
         if not self._comm:
             return
         rsp = self._comm.query(
-            f"select * from {self.db_name}.{self.table_name} limit {page_size};"
+            f"select * from {self.db_name}.{self.table_name} limit {int(page*PAGE_SIZE)}, {int(PAGE_SIZE+page*PAGE_SIZE)};"
         )
 
         fields = [i["name"] for i in rsp.fields]
-        # data = np.array(rsp.data)
 
         return fields, rsp.data
+
+    def query_pages(self):
+        if not self._comm:
+            return 0
+        rsp = self._comm.query(
+            f"select count(*) from {self.db_name}.{self.table_name};"
+        )
+        return ceil(rsp.data[0][0] / PAGE_SIZE)
 
 
 class TDStableModel:

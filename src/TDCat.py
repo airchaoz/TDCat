@@ -9,7 +9,7 @@ from TDCatUI import Ui_TDCat
 from NewConn import NewConn
 from TDModel import TDConnect
 from ItemModel import ConnItem
-from QueryWidget import QueryWidget
+from DataShow import DataWidget
 import resources_rc
 
 
@@ -57,16 +57,20 @@ class MyApp(QMainWindow, Ui_TDCat):
 
     def add_connect(self, params):
         conn_name = params[0]
-        self.connect_info[conn_name] = TDConnect(*params[1:])
+        self.connect_info[conn_name] = TDConnect(*params)
         self.dump_setting()
         self.init_db_viewer()
 
     def edit_connect(self, conn_name):
-        if conn_name not in self.connect_info.keys:
+        def del_connect():
+            self.del_connect(conn_name)
+
+        if conn_name not in self.connect_info.keys():
             return
 
         params = self.connect_info[conn_name]
-        new_connect_ui = NewConn(*params, parent=self)
+        new_connect_ui = NewConn(*(params.get_params()), parent=self)
+        new_connect_ui.checkout_signal.connect(del_connect)
         new_connect_ui.checkout_signal.connect(self.add_connect)
         new_connect_ui.show()
 
@@ -74,6 +78,13 @@ class MyApp(QMainWindow, Ui_TDCat):
         if conn_name not in self.connect_info.keys():
             return
         del self.connect_info[conn_name]
+        model = self.tree_viewer.model()
+        if model:
+            for i in range(model.rowCount()):
+                item = model.item(i)
+                if item and item.name == conn_name:
+                    model.removeRow(i)
+        self.exist_conn.remove(conn_name)
         self.dump_setting()
         self.init_db_viewer()
 
@@ -87,7 +98,7 @@ class MyApp(QMainWindow, Ui_TDCat):
             self.tree_viewer.setModel(model)
 
         for k, v in self.connect_info.items():
-            item = ConnItem(k, v, self)
+            item = ConnItem(k, v, parent=self)
             if k not in self.exist_conn:
                 self.exist_conn.add(k)
                 model.appendRow(item)
@@ -95,11 +106,17 @@ class MyApp(QMainWindow, Ui_TDCat):
     def display_query_results(self, fields, data, obj):
         if obj in self.query_dict:
             return
-
-        widget = QueryWidget(fields, data)
+        page_size = obj.query_pages()
+        widget = DataWidget(obj, fields, data, page_size)
+        widget.goto_page.connect(self.query_page)
         index = self.table_tab.addTab(widget, obj.table_name)
         self.table_tab.setCurrentIndex(index)
         self.query_dict[obj] = widget
+
+    def query_page(self, event):
+        obj, page = event
+        fields, data = obj.query(page - 1)
+        self.query_dict[obj].load_data(fields, data)
 
 
 if __name__ == "__main__":
