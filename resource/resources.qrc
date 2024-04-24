@@ -11,4 +11,7 @@
         <file>query.png</file>
         <file>connection.png</file>
     </qresource>
+    <qresource prefix="tiny">
+        <file>cancel.png</file>
+    </qresource>
 </RCC>

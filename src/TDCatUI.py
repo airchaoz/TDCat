@@ -54,7 +54,7 @@ class Ui_TDCat(object):
         self.gridLayout = QtWidgets.QGridLayout(self.widget_2)
         self.gridLayout.setContentsMargins(0, 0, 0, 0)
         self.gridLayout.setObjectName("gridLayout")
-        self.table_tab = QtWidgets.QTabWidget(self.widget_2)
+        self.table_tab = CustomTabWidget(self.widget_2)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Expanding, QtWidgets.QSizePolicy.Expanding)
         sizePolicy.setHorizontalStretch(100)
         sizePolicy.setVerticalStretch(100)
@@ -64,8 +64,11 @@ class Ui_TDCat(object):
         font.setFamily("SimSun")
         font.setPointSize(10)
         self.table_tab.setFont(font)
-        self.table_tab.setStyleSheet("QTabBar::tab { min-width: 120px; min-height: 35px; }")
-        self.table_tab.setTabsClosable(True)
+        self.table_tab.setStyleSheet("QTabBar::tab { \n"
+"    min-width: 120px; \n"
+"    min-height: 30px; \n"
+"}")
+        self.table_tab.setTabsClosable(False)
         self.table_tab.setObjectName("table_tab")
         self.tab = QtWidgets.QWidget()
         self.tab.setObjectName("tab")
@@ -75,7 +78,7 @@ class Ui_TDCat(object):
         self.horizontalLayout.addLayout(self.verticalLayout)
         TDCat.setCentralWidget(self.centralwidget)
         self.menuBar = QtWidgets.QMenuBar(TDCat)
-        self.menuBar.setGeometry(QtCore.QRect(0, 0, 1726, 33))
+        self.menuBar.setGeometry(QtCore.QRect(0, 0, 1726, 29))
         self.menuBar.setObjectName("menuBar")
         self.file_menu = QtWidgets.QMenu(self.menuBar)
         self.file_menu.setObjectName("file_menu")
@@ -132,5 +135,6 @@ class Ui_TDCat(object):
         self.new_conn_action.setText(_translate("TDCat", "新建连接"))
         self.conn_action.setText(_translate("TDCat", "连接"))
         self.new_query_action.setText(_translate("TDCat", "新建查询"))
+from CustomTabWidget import CustomTabWidget
 from CustomTreeView import CustomTreeView
 import resources_rc

@@ -104,8 +104,6 @@ class MyApp(QMainWindow, Ui_TDCat):
                 model.appendRow(item)
 
     def display_query_results(self, fields, data, obj):
-        if obj in self.query_dict:
-            return
         page_size = obj.query_pages()
         widget = DataWidget(obj, fields, data, page_size)
         widget.goto_page.connect(self.query_page)

@@ -90,7 +90,7 @@
            <number>0</number>
           </property>
           <item row="0" column="0">
-           <widget class="QTabWidget" name="table_tab">
+           <widget class="CustomTabWidget" name="table_tab">
             <property name="sizePolicy">
              <sizepolicy hsizetype="Expanding" vsizetype="Expanding">
               <horstretch>100</horstretch>
@@ -104,13 +104,16 @@
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">QTabBar::tab { min-width: 120px; min-height: 35px; }</string>
+             <string notr="true">QTabBar::tab { 
+	min-width: 120px; 
+	min-height: 30px; 
+}</string>
             </property>
             <property name="currentIndex">
              <number>0</number>
             </property>
             <property name="tabsClosable">
-             <bool>true</bool>
+             <bool>false</bool>
             </property>
             <widget class="QWidget" name="tab">
              <attribute name="title">
@@ -133,7 +136,7 @@
      <x>0</x>
      <y>0</y>
      <width>1726</width>
-     <height>33</height>
+     <height>29</height>
     </rect>
    </property>
    <widget class="QMenu" name="file_menu">
@@ -223,6 +226,12 @@
    <class>CustomTreeView</class>
    <extends>QTreeView</extends>
    <header>CustomTreeView</header>
+  </customwidget>
+  <customwidget>
+   <class>CustomTabWidget</class>
+   <extends>QTabWidget</extends>
+   <header>CustomTabWidget</header>
+   <container>1</container>
   </customwidget>
  </customwidgets>
  <resources>
