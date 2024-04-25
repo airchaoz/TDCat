@@ -1,4 +1,4 @@
-from PyQt5.QtWidgets import QTableView, QHeaderView
+from PyQt5.QtWidgets import QTableView
 from PyQt5.QtCore import Qt, QAbstractTableModel
 
 

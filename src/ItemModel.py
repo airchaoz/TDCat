@@ -1,8 +1,8 @@
 from PyQt5.QtGui import QStandardItem, QIcon
 from PyQt5.QtWidgets import QMessageBox, QMenu, QAction
 from TDModel import TCConnectException, TDConnect, TDDBModel, TDTableModel
-import resources_rc
 from PyQt5.QtCore import pyqtSignal
+import resources_rc
 
 
 class CustomItem(QStandardItem):
@@ -51,7 +51,7 @@ class StableItem(CustomItem):
 
 class CategoryItem(CustomItem):
     def __init__(self, text="", objs: list = None, parent=None):
-        super().__init__(text)
+        super().__init__(text, parent=parent)
         self.table_name = text
         self.objs = objs
 
@@ -77,6 +77,33 @@ class DBItem(CustomItem):
 
     def mouseDoubleClickEvent(self):
         super().mouseDoubleClickEvent()
+        self.connect()
+
+    def contextMenuEvent(self, event, host):
+        # 创建上下文菜单
+        menu = QMenu(host)
+        conn_action = QAction("连接", host)
+        disconn_action = QAction("断开连接", host)
+        refresh_action = QAction("刷新连接", host)
+
+        menu.addAction(conn_action)
+        menu.addAction(disconn_action)
+        menu.addSeparator()
+        menu.addAction(refresh_action)
+
+        conn_action.triggered.connect(self.mouseDoubleClickEvent)
+        disconn_action.triggered.connect(self.dis_connect)
+        refresh_action.triggered.connect(self.re_connect)
+
+        # 显示上下文菜单
+        menu.exec_(host.mapToGlobal(event.pos()))
+
+    def connect(self):
+
+        # 切换到展开状态
+        model = self.parent.tree_viewer.model()
+        index = model.indexFromItem(self)
+        self.parent.tree_viewer.expand(index)
 
         if self.init_flat:
             return
@@ -97,6 +124,24 @@ class DBItem(CustomItem):
         self.init_flat = True
         self.setIcon(QIcon(":icon/database.png"))
 
+    def dis_connect(self):
+        self.init_flat = False
+        self.setIcon(QIcon(":icon/database_un.png"))
+
+        # 删除所有子项
+        count = self.rowCount()
+        for row in range(count - 1, -1, -1):
+            self.removeRow(row)
+
+        # 切换到坍缩状态
+        model = self.parent.tree_viewer.model()
+        index = model.indexFromItem(self)
+        self.parent.tree_viewer.collapse(index)
+
+    def re_connect(self):
+        self.dis_connect()
+        self.mouseDoubleClickEvent()
+
 
 class ConnItem(CustomItem):
     del_signal = pyqtSignal(str)
@@ -112,6 +157,38 @@ class ConnItem(CustomItem):
 
     def mouseDoubleClickEvent(self):
         super().mouseDoubleClickEvent()
+        self.connect()
+
+    def contextMenuEvent(self, event, host):
+        # 创建上下文菜单
+        menu = QMenu(host)
+        conn_action = QAction("连接配置", host)
+        disconn_action = QAction("断开连接", host)
+        edit_action = QAction("修改配置", host)
+        refresh_action = QAction("刷新连接", host)
+        del_action = QAction("删除配置", host)
+        menu.addAction(conn_action)
+        menu.addAction(disconn_action)
+        menu.addSeparator()
+        menu.addAction(edit_action)
+        menu.addAction(refresh_action)
+        menu.addAction(del_action)
+
+        conn_action.triggered.connect(self.mouseDoubleClickEvent)
+        disconn_action.triggered.connect(self.dis_connect)
+        edit_action.triggered.connect(lambda: self.parent.edit_connect(self.name))
+        refresh_action.triggered.connect(self.re_connect)
+        del_action.triggered.connect(lambda: self.parent.del_connect(self.name))
+
+        # 显示上下文菜单
+        menu.exec_(host.mapToGlobal(event.pos()))
+
+    def connect(self):
+
+        # 切换到展开状态
+        model = self.parent.tree_viewer.model()
+        index = model.indexFromItem(self)
+        self.parent.tree_viewer.expand(index)
 
         if self.init_flat:
             return
@@ -132,18 +209,21 @@ class ConnItem(CustomItem):
         self.init_flat = True
         self.setIcon(QIcon(":icon/tdengine.png"))
 
-    def contextMenuEvent(self, event, host):
-        # 创建上下文菜单
-        menu = QMenu(host)
-        edit_action = QAction("修改配置", host)
-        refresh_action = QAction("刷新连接", host)
-        del_action = QAction("删除配置", host)
-        menu.addAction(edit_action)
-        menu.addAction(refresh_action)
-        menu.addAction(del_action)
 
-        edit_action.triggered.connect(lambda: self.parent.edit_connect(self.name))
-        del_action.triggered.connect(lambda: self.parent.del_connect(self.name))
+    def dis_connect(self):
+        self.init_flat = False
+        self.setIcon(QIcon(":icon/tdengine_un.png"))
 
-        # 显示上下文菜单
-        menu.exec_(host.mapToGlobal(event.pos()))
+        # 删除所有子项
+        count = self.rowCount()
+        for row in range(count - 1, -1, -1):
+            self.removeRow(row)
+
+        # 切换到坍缩状态
+        model = self.parent.tree_viewer.model()
+        index = model.indexFromItem(self)
+        self.parent.tree_viewer.collapse(index)
+
+    def re_connect(self):
+        self.dis_connect()
+        self.connect()

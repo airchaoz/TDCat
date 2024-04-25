@@ -54,9 +54,6 @@ class Ui_NewConUI(object):
         self.cancel_pbutton = QtWidgets.QPushButton(self.centralwidget)
         self.cancel_pbutton.setGeometry(QtCore.QRect(670, 550, 112, 34))
         self.cancel_pbutton.setObjectName("cancel_pbutton")
-        self.conn_test_pbutton = QtWidgets.QPushButton(self.centralwidget)
-        self.conn_test_pbutton.setGeometry(QtCore.QRect(30, 550, 112, 34))
-        self.conn_test_pbutton.setObjectName("conn_test_pbutton")
         NewConUI.setCentralWidget(self.centralwidget)
 
         self.retranslateUi(NewConUI)
@@ -72,4 +69,3 @@ class Ui_NewConUI(object):
         self.conn_pwd_label.setText(_translate("NewConUI", "密码"))
         self.check_pbutton.setText(_translate("NewConUI", "确定"))
         self.cancel_pbutton.setText(_translate("NewConUI", "取消"))
-        self.conn_test_pbutton.setText(_translate("NewConUI", "测试连接"))

@@ -1,5 +1,4 @@
 from taosrest import connect
-import json
 from TDCommon import PAGE_SIZE
 from math import ceil
 
@@ -53,7 +52,7 @@ class TDConnect:
     def refresh(self) -> None:
         self.db_init()
 
-    def config_dump(self) -> str:
+    def config(self) -> str:
         config = {
             "name": self.name,
             "url": self.url,
@@ -62,7 +61,7 @@ class TDConnect:
             "password": self.password,
             "timeout": self.timeout,
         }
-        return json.dumps(config)
+        return config
 
     def get_params(self):
         return self.url, self.port, self.user, self.password, self.name

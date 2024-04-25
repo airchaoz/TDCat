@@ -1,15 +1,16 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget
-from PyQt5.QtCore import QSettings
 from PyQt5.QtGui import QStandardItemModel, QIcon
 
 import sys
-import json
 
 from TDCatUI import Ui_TDCat
 from NewConn import NewConn
 from TDModel import TDConnect
 from ItemModel import ConnItem
 from DataShow import DataWidget
+from UIHelper import WindowResizeHelper
+from TDCommon import LocalConfig
+from SqlExec import SqlExec
 import resources_rc
 
 
@@ -22,33 +23,29 @@ class MyApp(QMainWindow, Ui_TDCat):
         self.db_viewer = None
         self.query_dict = dict()
         self.exist_conn = set()
+        self._cfg = LocalConfig()
 
         self.load_setting()
-        self.init_db_viewer()
+        self.refresh_db_viewer()
 
         self.new_conn_action.triggered.connect(self.new_connect)
+        self.new_query_action.triggered.connect(self.new_query)
         self.conn_action.triggered.connect(self.new_connect)
         self.tree_viewer.header().setVisible(False)
 
         self.setWindowIcon(QIcon(":icon/tdengine.png"))
+        self.resize_monitor = WindowResizeHelper(self)
 
     def load_setting(self):
-        setting_obj = QSettings("./config.ini", QSettings.IniFormat)
-        setting = setting_obj.value("DBSetting", defaultValue="{}")
-        setting = json.loads(setting)
-        for k, v in setting.items():
-            params = json.loads(v)
-            self.connect_info[k] = TDConnect(**params)
+        groups = self._cfg.get_groups()
+        for group in groups:
+            if group.startswith("DBConnect-"):
+                self.connect_info[group[10:]] = TDConnect(**self._cfg.get_values(group))
 
     def dump_setting(self):
-        setting = dict()
-
         for k, v in self.connect_info.items():
-            setting[k] = v.config_dump()
-
-        setting = json.dumps(setting)
-        setting_obj = QSettings("./config.ini", QSettings.IniFormat)
-        setting_obj.setValue("DBSetting", setting)
+            cfg = v.config()
+            self._cfg.set_values(f"DBConnect-{k}", cfg)
 
     def new_connect(self):
         new_connect_ui = NewConn(parent=self)
@@ -59,7 +56,7 @@ class MyApp(QMainWindow, Ui_TDCat):
         conn_name = params[0]
         self.connect_info[conn_name] = TDConnect(*params)
         self.dump_setting()
-        self.init_db_viewer()
+        self.refresh_db_viewer()
 
     def edit_connect(self, conn_name):
         def del_connect():
@@ -86,9 +83,9 @@ class MyApp(QMainWindow, Ui_TDCat):
                     model.removeRow(i)
         self.exist_conn.remove(conn_name)
         self.dump_setting()
-        self.init_db_viewer()
+        self.refresh_db_viewer()
 
-    def init_db_viewer(self):
+    def refresh_db_viewer(self):
         if len(self.connect_info) == 0:
             return
 
@@ -115,6 +112,13 @@ class MyApp(QMainWindow, Ui_TDCat):
         obj, page = event
         fields, data = obj.query(page - 1)
         self.query_dict[obj].load_data(fields, data)
+
+
+    def new_query(self):
+        widget = SqlExec()
+        widget.goto_page.connect(self.query_page)
+        index = self.table_tab.addTab(widget, '新建查询')
+        self.table_tab.setCurrentIndex(index)
 
 
 if __name__ == "__main__":

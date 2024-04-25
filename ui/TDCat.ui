@@ -104,9 +104,9 @@
              </font>
             </property>
             <property name="styleSheet">
-             <string notr="true">QTabBar::tab { 
-	min-width: 120px; 
-	min-height: 30px; 
+             <string notr="true">QTabBar::tab {
+	min-width: 120px;
+	min-height: 30px;
 }</string>
             </property>
             <property name="currentIndex">
@@ -235,7 +235,7 @@
   </customwidget>
  </customwidgets>
  <resources>
-  <include location="resources.qrc"/>
+  <include location="../img/resources.qrc"/>
  </resources>
  <connections/>
 </ui>

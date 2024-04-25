@@ -1,7 +1,5 @@
-from PyQt5.QtWidgets import QWidget, QLineEdit, QPushButton
-from CustomTableView import CustomTableView
-from PyQt5.QtGui import QFont
-from PyQt5.QtWidgets import QApplication, QHBoxLayout, QVBoxLayout
+from PyQt5.QtWidgets import QWidget
+from PyQt5.QtWidgets import QApplication
 from DataShowUI import Ui_DataShow
 from PyQt5.QtCore import pyqtSignal
 

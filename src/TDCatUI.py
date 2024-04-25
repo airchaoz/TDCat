@@ -14,7 +14,7 @@ from PyQt5 import QtCore, QtGui, QtWidgets
 class Ui_TDCat(object):
     def setupUi(self, TDCat):
         TDCat.setObjectName("TDCat")
-        TDCat.resize(1726, 1295)
+        TDCat.resize(1726, 1109)
         sizePolicy = QtWidgets.QSizePolicy(QtWidgets.QSizePolicy.Preferred, QtWidgets.QSizePolicy.Fixed)
         sizePolicy.setHorizontalStretch(0)
         sizePolicy.setVerticalStretch(0)
@@ -41,7 +41,7 @@ class Ui_TDCat(object):
         sizePolicy.setVerticalStretch(0)
         sizePolicy.setHeightForWidth(self.tree_viewer.sizePolicy().hasHeightForWidth())
         self.tree_viewer.setSizePolicy(sizePolicy)
-        self.tree_viewer.setMinimumSize(QtCore.QSize(400, 0))
+        self.tree_viewer.setMinimumSize(QtCore.QSize(280, 0))
         self.tree_viewer.setMaximumSize(QtCore.QSize(2000, 16777215))
         self.tree_viewer.setObjectName("tree_viewer")
         self.widget_2 = QtWidgets.QWidget(self.splitter)

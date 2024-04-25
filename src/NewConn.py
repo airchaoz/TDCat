@@ -29,6 +29,8 @@ class NewConn(QMainWindow, Ui_NewConUI):
         self.conn_pwd_lineedit.setText(conn_pwd)
         self.conn_name_lineedit.setText(conn_name)
 
+        self.cancel_pbutton.clicked.connect(self.close)
+
     def checkout(self):
         conn_ip = self.conn_ip_lineedit.text()
         if len(conn_ip) == 0:
