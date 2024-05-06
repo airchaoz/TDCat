@@ -6,7 +6,7 @@ Author: jplozf <jpl@ozf.fr>
 
 from PyQt5.QtCore import QRegExp
 from PyQt5.QtCore import Qt
-from PyQt5.QtGui import QFont
+from PyQt5.QtGui import QFont, QColor
 from PyQt5.QtGui import QSyntaxHighlighter
 from PyQt5.QtGui import QTextCharFormat
 
@@ -21,7 +21,7 @@ class SQLHighLighter(QSyntaxHighlighter):
         # --------------------------------------------------------------------
         # coloration des mots clés SQL de sqlite3
         motcles_format = QTextCharFormat()
-        motcles_format.setForeground(Qt.blue)  # mots clés en bleu
+        motcles_format.setForeground(QColor("#097BF7"))  # mots clés en bleu
         motcles_format.setFontWeight(QFont.Bold)  # pour mise en gras
         # liste des mots à considérer
         motcles_motifs = [
@@ -160,7 +160,7 @@ class SQLHighLighter(QSyntaxHighlighter):
         # --------------------------------------------------------------------
         # nombre entier ou flottant
         nombre_format = QTextCharFormat()
-        nombre_format.setForeground(Qt.darkGreen)
+        nombre_format.setForeground(QColor("#66C853"))
         nombre_motif = "\\b[-+]?[0-9]*\.?[0-9]+([eE][-+]?[0-9]+)?\\b"
         nombre_regex = QRegExp(nombre_motif)
         nombre_regex.setMinimal(True)
@@ -169,7 +169,7 @@ class SQLHighLighter(QSyntaxHighlighter):
         # --------------------------------------------------------------------
         # chaine de caractères simple quote: '...'
         chaine1_format = QTextCharFormat()
-        chaine1_format.setForeground(Qt.green)  # red)
+        chaine1_format.setForeground(QColor("#66C853"))  # red)
         chaine1_motif = "'.*'"
         chaine1_regex = QRegExp(chaine1_motif)
         chaine1_regex.setMinimal(True)
@@ -178,7 +178,6 @@ class SQLHighLighter(QSyntaxHighlighter):
         # --------------------------------------------------------------------
         # chaine de caractères double quotes: "..."
         chaine2_format = QTextCharFormat()
-        chaine2_format.setForeground(Qt.red)
         chaine2_motif = '".*"'
         chaine2_regex = QRegExp(chaine2_motif)
         chaine2_regex.setMinimal(True)
@@ -187,7 +186,6 @@ class SQLHighLighter(QSyntaxHighlighter):
         # --------------------------------------------------------------------
         # delimiteur: parenthèses, crochets, accolades
         delimiteur_format = QTextCharFormat()
-        delimiteur_format.setForeground(Qt.red)
         delimiteur_motif = "[\)\(]+|[\{\}]+|[][]+"
         delimiteur_regex = QRegExp(delimiteur_motif)
         self.regles.append([delimiteur_regex, delimiteur_format])

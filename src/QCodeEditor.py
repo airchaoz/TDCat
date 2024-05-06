@@ -75,7 +75,7 @@ class QCodeEditor(QPlainTextEdit):
                 paint_rect = QRect(
                     0, block_top, self.width(), self.editor.fontMetrics().height()
                 )
-                painter.drawText(paint_rect, Qt.AlignRight, str(blockNumber + 1))
+                painter.drawText(paint_rect, Qt.AlignHCenter, str(blockNumber + 1))
 
                 block = block.next()
 
@@ -176,7 +176,7 @@ if __name__ == "__main__":
             SyntaxHighlighter=SQLHighLighter,
         )
 
-        text = '\n'
+        text = "\n"
         editor.setPlainText(text)
         editor.resize(600, 650)
         editor.show()

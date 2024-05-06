@@ -1,16 +1,14 @@
-from PyQt5.QtWidgets import QApplication, QMainWindow, QTabWidget
+from PyQt5.QtWidgets import QApplication, QMainWindow
 from PyQt5.QtGui import QStandardItemModel, QIcon
 
 import sys
 
 from TDCatUI import Ui_TDCat
-from NewConn import NewConn
-from TDModel import TDConnect
 from ItemModel import ConnItem
 from DataShow import DataWidget
 from UIHelper import WindowResizeHelper
-from TDCommon import LocalConfig
 from SqlExec import SqlExec
+from ConnectionManager import ConnectionManager
 import resources_rc
 
 
@@ -23,70 +21,20 @@ class MyApp(QMainWindow, Ui_TDCat):
         self.db_viewer = None
         self.query_dict = dict()
         self.exist_conn = set()
-        self._cfg = LocalConfig()
+        self.conn_mgr = ConnectionManager()
 
-        self.load_setting()
-        self.refresh_db_viewer()
-
-        self.new_conn_action.triggered.connect(self.new_connect)
+        self.conn_mgr.refresh_signal.connect(self.refresh_db_viewer)
+        self.new_conn_action.triggered.connect(self.conn_mgr.new_connect)
+        self.conn_action.triggered.connect(self.conn_mgr.new_connect)
         self.new_query_action.triggered.connect(self.new_query)
-        self.conn_action.triggered.connect(self.new_connect)
         self.tree_viewer.header().setVisible(False)
 
         self.setWindowIcon(QIcon(":icon/tdengine.png"))
         self.resize_monitor = WindowResizeHelper(self)
+        self.conn_mgr.start()
 
-    def load_setting(self):
-        groups = self._cfg.get_groups()
-        for group in groups:
-            if group.startswith("DBConnect-"):
-                self.connect_info[group[10:]] = TDConnect(**self._cfg.get_values(group))
-
-    def dump_setting(self):
-        for k, v in self.connect_info.items():
-            cfg = v.config()
-            self._cfg.set_values(f"DBConnect-{k}", cfg)
-
-    def new_connect(self):
-        new_connect_ui = NewConn(parent=self)
-        new_connect_ui.checkout_signal.connect(self.add_connect)
-        new_connect_ui.show()
-
-    def add_connect(self, params):
-        conn_name = params[0]
-        self.connect_info[conn_name] = TDConnect(*params)
-        self.dump_setting()
-        self.refresh_db_viewer()
-
-    def edit_connect(self, conn_name):
-        def del_connect():
-            self.del_connect(conn_name)
-
-        if conn_name not in self.connect_info.keys():
-            return
-
-        params = self.connect_info[conn_name]
-        new_connect_ui = NewConn(*(params.get_params()), parent=self)
-        new_connect_ui.checkout_signal.connect(del_connect)
-        new_connect_ui.checkout_signal.connect(self.add_connect)
-        new_connect_ui.show()
-
-    def del_connect(self, conn_name):
-        if conn_name not in self.connect_info.keys():
-            return
-        del self.connect_info[conn_name]
-        model = self.tree_viewer.model()
-        if model:
-            for i in range(model.rowCount()):
-                item = model.item(i)
-                if item and item.name == conn_name:
-                    model.removeRow(i)
-        self.exist_conn.remove(conn_name)
-        self.dump_setting()
-        self.refresh_db_viewer()
-
-    def refresh_db_viewer(self):
-        if len(self.connect_info) == 0:
+    def refresh_db_viewer(self, connect_info):
+        if len(connect_info) == 0:
             return
 
         model = self.tree_viewer.model()
@@ -94,7 +42,7 @@ class MyApp(QMainWindow, Ui_TDCat):
             model = QStandardItemModel()
             self.tree_viewer.setModel(model)
 
-        for k, v in self.connect_info.items():
+        for k, v in connect_info.items():
             item = ConnItem(k, v, parent=self)
             if k not in self.exist_conn:
                 self.exist_conn.add(k)
@@ -113,11 +61,10 @@ class MyApp(QMainWindow, Ui_TDCat):
         fields, data = obj.query(page - 1)
         self.query_dict[obj].load_data(fields, data)
 
-
     def new_query(self):
         widget = SqlExec()
         widget.goto_page.connect(self.query_page)
-        index = self.table_tab.addTab(widget, '新建查询')
+        index = self.table_tab.addTab(widget, "新建查询")
         self.table_tab.setCurrentIndex(index)
 
 
