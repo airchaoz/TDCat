@@ -1,6 +1,12 @@
 from PyQt5.QtGui import QStandardItem, QIcon
 from PyQt5.QtWidgets import QMessageBox, QMenu, QAction
-from TDModel import TCConnectException, TDConnect, TDDBModel, TDTableModel
+from TDModel import (
+    TCConnectException,
+    TDConnect,
+    TDDBModel,
+    TDTableModel,
+    TDStableModel,
+)
 from PyQt5.QtCore import pyqtSignal
 import resources_rc
 
@@ -39,14 +45,22 @@ class TableItem(CustomItem):
 
 
 class StableItem(CustomItem):
-    def __init__(self, text="", table: TDTableModel = None, parent=None):
+    def __init__(self, text="", stable: TDStableModel = None, parent=None):
         super().__init__(text)
         self.table_name = text
-        self.table = table
+        self.stable = stable
+        self.parent = parent
         self.setIcon(QIcon(":icon/table.png"))
 
+        self.stable.init()
+        table = []
+        for k in sorted(self.stable.table_dict.keys()):
+            v = self.stable.table_dict[k]
+            table.append(TableItem(k, v, self.parent))
+        self.appendRows(table)
+
     def mouseDoubleClickEvent(self):
-        pass
+        super().mouseDoubleClickEvent()
 
 
 class CategoryItem(CustomItem):
@@ -117,8 +131,8 @@ class DBItem(CustomItem):
         for k in sorted(self.db.stable_dict.keys()):
             v = self.db.stable_dict[k]
             stable.append(StableItem(k, v, self.parent))
-        self.table = CategoryItem("表", table, self.parent)
-        self.stable = CategoryItem("超表", stable, self.parent)
+        self.table = CategoryItem("普通表", table, self.parent)
+        self.stable = CategoryItem("超级表", stable, self.parent)
         self.appendRows([self.table, self.stable])
 
         self.init_flat = True
@@ -174,11 +188,12 @@ class ConnItem(CustomItem):
         menu.addAction(refresh_action)
         menu.addAction(del_action)
 
+        conn_mgr = self.parent.conn_mgr
         conn_action.triggered.connect(self.mouseDoubleClickEvent)
         disconn_action.triggered.connect(self.dis_connect)
-        edit_action.triggered.connect(lambda: self.parent.edit_connect(self.name))
+        edit_action.triggered.connect(lambda: conn_mgr.edit_connect(self.name))
         refresh_action.triggered.connect(self.re_connect)
-        del_action.triggered.connect(lambda: self.parent.del_connect(self.name))
+        del_action.triggered.connect(lambda: conn_mgr.del_connect(self.name))
 
         # 显示上下文菜单
         menu.exec_(host.mapToGlobal(event.pos()))

@@ -1,5 +1,4 @@
 from PyQt5.QtCore import QSettings
-import json
 
 PAGE_SIZE = 1000
 
@@ -45,3 +44,8 @@ class LocalConfig:
 
     def get_groups(self):
         return self._setting.childGroups()
+
+    def remove_group(self, group):
+        self._setting.beginGroup(group)
+        self._setting.remove('')
+        self._setting.endGroup()

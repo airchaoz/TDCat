@@ -5,6 +5,7 @@ class CustomTreeView(QTreeView):
 
     def __init__(self, parent=None):
         super(CustomTreeView, self).__init__(parent)
+        self.header().setVisible(False)
 
     def mouseDoubleClickEvent(self, event):
         index = self.indexAt(event.pos())

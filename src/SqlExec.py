@@ -12,6 +12,7 @@ class SqlExec(QWidget, Ui_sqlExec):
         super().__init__()
         self.setupUi(self)
         self.pretty_btn.clicked.connect(self.pretty_sql)
+        self.run_btn.clicked.connect(self.run_sql)
         self.codeEditor.setPlainText("\n")
 
     def pretty_sql(self):
@@ -22,6 +23,12 @@ class SqlExec(QWidget, Ui_sqlExec):
         formatted_sql = sql_format(sql)
         self.codeEditor.setPlainText(formatted_sql)
         self.codeEditor.appendPlainText("")  # feature
+
+    def run_sql(self):
+        sql = self.codeEditor.toPlainText()
+        if len(sql.strip()) == 0:
+            return
+        self.goto_page.emit([sql])
 
 
 if __name__ == "__main__":

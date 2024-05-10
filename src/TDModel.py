@@ -82,7 +82,10 @@ class TDDBModel:
     def init_table(self):
         if not self._comm:
             return
-        rsp = self._comm.query(f"show {self.db_name}.tables;")
+        rsp = self._comm.query(
+            "SELECT * FROM information_schema.ins_tables WHERE db_name "
+            f"= '{self.db_name}' AND stable_name IS NULL;"
+        )
         for item in rsp:
             table_name = item[0]
             self.table_dict[table_name] = TDTableModel(
@@ -129,9 +132,25 @@ class TDTableModel:
 class TDStableModel:
     def __init__(self, db_name: str, stable_name: str, comm: connect) -> None:
         self.db_name = db_name
-        self.table_name = stable_name
+        self.stable_name = stable_name
         self._comm = comm
+        self.table_dict = dict()
 
+    def init(self):
+        self.init_table()
+
+    def init_table(self):
+        if not self._comm:
+            return
+        rsp = self._comm.query(
+            "SELECT * FROM information_schema.ins_tables WHERE db_name "
+            f"= '{self.db_name}' AND stable_name = '{self.stable_name}';"
+        )
+        for item in rsp:
+            table_name = item[0]
+            self.table_dict[table_name] = TDTableModel(
+                self.db_name, table_name, self._comm
+            )
 
 if __name__ == "__main__":
     td = TDConnect("http://127.0.0.1:3000", "root", "taosdata")

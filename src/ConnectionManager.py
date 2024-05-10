@@ -1,17 +1,21 @@
-from PyQt5.QtCore import QObject, pyqtSignal
 from NewConn import NewConn
 from TDModel import TDConnect
 from TDCommon import LocalConfig
+from PyQt5.QtGui import QStandardItemModel
+from ItemModel import ConnItem
 
-class ConnectionManager(QObject):
+class ConnectionManager():
 
-    # 定义信号
-    refresh_signal = pyqtSignal(dict)
-
-    def __init__(self):
-        super().__init__()
+    def __init__(self, parent=None):
+        self.parent = parent
         self.connect_info = {}
         self._cfg = LocalConfig()
+
+        self.parent.new_conn_action.triggered.connect(self.new_connect)
+        self.parent.conn_action.triggered.connect(self.new_connect)
+        self.exist_conn  = set()
+
+        self.start()
 
     def load_setting(self):
         groups = self._cfg.get_groups()
@@ -25,7 +29,7 @@ class ConnectionManager(QObject):
             self._cfg.set_values(f"DBConnect-{k}", cfg)
 
     def new_connect(self):
-        new_connect_ui = NewConn(parent=self)
+        new_connect_ui = NewConn(parent=self.parent)
         new_connect_ui.checkout_signal.connect(self.add_connect)
         new_connect_ui.show()
 
@@ -43,7 +47,7 @@ class ConnectionManager(QObject):
             return
 
         params = self.connect_info[conn_name]
-        new_connect_ui = NewConn(*(params.get_params()), parent=self)
+        new_connect_ui = NewConn(*(params.get_params()), parent=self.parent)
         new_connect_ui.checkout_signal.connect(del_connect)
         new_connect_ui.checkout_signal.connect(self.add_connect)
         new_connect_ui.show()
@@ -52,16 +56,31 @@ class ConnectionManager(QObject):
         if conn_name not in self.connect_info.keys():
             return
         del self.connect_info[conn_name]
-        model = self.tree_viewer.model()
+        model = self.parent.tree_viewer.model()
         if model:
             for i in range(model.rowCount()):
                 item = model.item(i)
                 if item and item.name == conn_name:
                     model.removeRow(i)
         self.exist_conn.remove(conn_name)
-        self.dump_setting()
+        self._cfg.remove_group(f"DBConnect-{conn_name}")
         self.refresh_db_viewer()
 
     def start(self):
         self.load_setting()
-        self.refresh_signal.emit(self.connect_info)
+        self.refresh_db_viewer()
+
+    def refresh_db_viewer(self):
+        if len(self.connect_info) == 0:
+            return
+
+        model = self.parent.tree_viewer.model()
+        if not model:
+            model = QStandardItemModel()
+            self.parent.tree_viewer.setModel(model)
+
+        for k, v in self.connect_info.items():
+            item = ConnItem(k, v, parent=self.parent)
+            if k not in self.exist_conn:
+                self.exist_conn.add(k)
+                model.appendRow(item)

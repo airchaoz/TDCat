@@ -1,10 +1,9 @@
 from PyQt5.QtWidgets import QApplication, QMainWindow
-from PyQt5.QtGui import QStandardItemModel, QIcon
+from PyQt5.QtGui import QIcon
 
 import sys
 
 from TDCatUI import Ui_TDCat
-from ItemModel import ConnItem
 from DataShow import DataWidget
 from UIHelper import WindowResizeHelper
 from SqlExec import SqlExec
@@ -21,32 +20,12 @@ class MyApp(QMainWindow, Ui_TDCat):
         self.db_viewer = None
         self.query_dict = dict()
         self.exist_conn = set()
-        self.conn_mgr = ConnectionManager()
+        self.conn_mgr = ConnectionManager(self)
 
-        self.conn_mgr.refresh_signal.connect(self.refresh_db_viewer)
-        self.new_conn_action.triggered.connect(self.conn_mgr.new_connect)
-        self.conn_action.triggered.connect(self.conn_mgr.new_connect)
         self.new_query_action.triggered.connect(self.new_query)
-        self.tree_viewer.header().setVisible(False)
 
         self.setWindowIcon(QIcon(":icon/tdengine.png"))
         self.resize_monitor = WindowResizeHelper(self)
-        self.conn_mgr.start()
-
-    def refresh_db_viewer(self, connect_info):
-        if len(connect_info) == 0:
-            return
-
-        model = self.tree_viewer.model()
-        if not model:
-            model = QStandardItemModel()
-            self.tree_viewer.setModel(model)
-
-        for k, v in connect_info.items():
-            item = ConnItem(k, v, parent=self)
-            if k not in self.exist_conn:
-                self.exist_conn.add(k)
-                model.appendRow(item)
 
     def display_query_results(self, fields, data, obj):
         page_size = obj.query_pages()
